@@ -1,90 +1,9 @@
-const mongoose = require("mongoose");
-
-
-const ProductSchema = new mongoose.Schema(
-    {
-        title: {
-            type: String, 
-            required: true, 
-            unique: true 
-        },
-
-        productBrand: {
-            type: String,
-            required: true
-        },
-
-        desc: { 
-            type: String, 
-            required: true
-        },
-
-        productImg: { 
-            type: Array, 
-            required: true 
-        },
-
-        categories: { 
-            type: Array
-        },
-
-        size: { 
-            type: String
-        },
-
-        color: { 
-            type: Array
-        },
-
-        price: { 
-            type: Number,
-            required: true
-        },
-
-        inStock: { 
-            type: Boolean,
-            default: false
-        },
-       
-        skuNumber:{
-            type: String,
-            required: true
-        },
-
-        type : {
-            type: String,
-            required: true
-        },
-
-        mfgDate : {
-            type: Date,
-            required: true
-        },
-
-        ExpDate : {
-            type: Date,
-            required: true
-        },
-
-        discount : {
-            type: String
-        }
-
-    },
-    { timestamps: true }
-);
-
-module.exports = mongoose.model("Product", ProductSchema);
-
-
-
-
-
+const Product = require("../models/Product");
 const {
   verifyToken,
   verifyTokenAndAuthorization,
   verifyTokenAndAdmin,
-} = require("../shared/verifyToken");
+} = require("../shared/verifyToken.js");
 
 const router = require("express").Router();
 
@@ -114,7 +33,7 @@ router.get("/find/:id", async (req, res) => {
 });
 
 //GET ALL PRODUCTS
-router.get("/allProducts", async (req, res) => {
+router.get("/allProducts",async (req, res) => {
   const qNew = req.query.new;
   const qCategory = req.query.category;
   try {
@@ -137,5 +56,31 @@ router.get("/allProducts", async (req, res) => {
     res.status(500).json(err);
   }
 });
+
+//UPDATE
+router.put("/:id", verifyTokenAndAdmin, async (req, res) => {
+    try {
+      const updatedProduct = await Product.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: req.body,
+        },
+        { new: true }
+      );
+      res.status(200).json(updatedProduct);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
+  
+  //DELETE
+  router.delete("/Delete:id", verifyTokenAndAdmin, async (req, res) => {
+    try {
+      await Product.findByIdAndDelete(req.params.id);
+      res.status(200).json("Product has been deleted...");
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
 
 module.exports = router;
