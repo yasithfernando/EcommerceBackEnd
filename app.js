@@ -12,6 +12,10 @@ const productRoute = require("./features/product");
 
 dotenv.config();
 
+//Middleware
+//Add these middleware to acces request body url encoded values
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
 
 
 app.use(cors());
